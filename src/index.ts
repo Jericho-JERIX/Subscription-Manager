@@ -1,20 +1,26 @@
-import { Client, Events, GatewayIntentBits } from "discord.js";
+import { BaseInteraction, Client, Events, GatewayIntentBits } from "discord.js";
 import * as dotenv from "dotenv";
-import { BaseInteraction } from "discord.js";
-import { SlashCommandObject } from "./scripts/types/SlashCommandObject";
+import { createPaymentThread } from "./actions/CreatePaymentThread";
 import { slashCommandList } from "./commands";
+import { SlashCommandObject } from "./scripts/types/SlashCommandObject";
 import { getSlashCommandObject } from "./utils/slash-command";
+import { addPaidSubscriber } from "./actions/AddPaidSubscriber";
 
 dotenv.config();
 let commands: SlashCommandObject;
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildIntegrations],
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildIntegrations,
+		GatewayIntentBits.GuildMembers,
+	],
 });
 
 client.once(Events.ClientReady, async (client) => {
 	console.log(`✅ Ready! Logged in as ${client.user?.tag}`);
 	commands = getSlashCommandObject(slashCommandList);
+	createPaymentThread(client);
 });
 
 client.on("interactionCreate", async (interaction: BaseInteraction) => {
@@ -34,5 +40,9 @@ client.on("interactionCreate", async (interaction: BaseInteraction) => {
 		);
 	}
 });
+
+client.on("threadMembersUpdate", async (message) =>
+	addPaidSubscriber(message)
+);
 
 client.login(process.env.TOKEN);
