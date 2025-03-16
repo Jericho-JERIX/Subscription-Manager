@@ -32,8 +32,9 @@ export function initScheduling(client: Client) {
         }
     }
 
+    console.log(`🕒 First scheduled of all tasks will be triggered in ${delta}ms (${tomorrow})`)
+    console.log(`🕒 First scheduled payment thread will be triggered at date ${paymentDate}`)
     setTimeout(() => {
-        console.log(`First task calling will trigger in ${delta}ms (${tomorrow})`)
         task()
         setInterval(task,24 * 60 * 60 * 1000)
     }, delta);
