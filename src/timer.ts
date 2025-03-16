@@ -33,6 +33,7 @@ export function initScheduling(client: Client) {
     }
 
     setTimeout(() => {
+        console.log(`First task calling will trigger in ${delta}ms (${tomorrow})`)
         task()
         setInterval(task,24 * 60 * 60 * 1000)
     }, delta);

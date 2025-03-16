@@ -1,0 +1,12 @@
+{
+    "owner_id" : "",
+    "channel_id" : "",
+    "subscriber_ids" : [],
+    "payment_date" : 0,
+    "on_paid_message": "",
+    "reminder_message": "",
+    "thread": {
+        "name": "",
+        "reason": ""
+    }
+}
