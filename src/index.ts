@@ -5,6 +5,7 @@ import { slashCommandList } from "./commands";
 import { SlashCommandObject } from "./scripts/types/SlashCommandObject";
 import { getSlashCommandObject } from "./utils/slash-command";
 import { addPaidSubscriber } from "./actions/AddPaidSubscriber";
+import { startCreatePaymentThreadTimer, startRemindUnpaidSubscriberTimer } from "./timer";
 
 dotenv.config();
 let commands: SlashCommandObject;
@@ -20,7 +21,9 @@ const client = new Client({
 client.once(Events.ClientReady, async (client) => {
 	console.log(`✅ Ready! Logged in as ${client.user?.tag}`);
 	commands = getSlashCommandObject(slashCommandList);
-	createPaymentThread(client);
+	// createPaymentThread(client);
+	startCreatePaymentThreadTimer(client);
+	startRemindUnpaidSubscriberTimer(client);
 });
 
 client.on("interactionCreate", async (interaction: BaseInteraction) => {

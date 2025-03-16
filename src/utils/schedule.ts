@@ -1,10 +1,15 @@
-export function getNextRenewalDate(date: Date | number) {
+export function getNextRenewalDate(date: Date | number, offset?: number) {
 
     if (typeof date === "number") {
         date = new Date(date);
     }
 
-    while (date.getTime() < Date.now()) {
+    const targetDate = new Date();
+    if (offset) {
+        targetDate.setMonth(date.getMonth() + offset);
+    }
+
+    while (date.getTime() < targetDate.getTime()) {
         const nextMonth = date.getMonth() + 1;
         date.setMonth(nextMonth);
     }
