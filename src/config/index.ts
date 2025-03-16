@@ -7,6 +7,7 @@ interface Config {
     payment_date: number;
     on_paid_message: string;
     reminder_message: string;
+    payment_message: string;
     thread: {
         name: string;
         reason: string;
