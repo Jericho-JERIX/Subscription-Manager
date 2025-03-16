@@ -25,3 +25,7 @@ export function getNextRenewalCountdown(date: Date | number) {
     return difference;
 
 }
+
+export function getTotalDaysInMonth(month: number, year: a) {
+    return new Date(year, month, 0).getDate();
+}

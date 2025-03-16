@@ -2,7 +2,14 @@ import { Client } from "discord.js";
 import { config } from "../config";
 import { paymentThreadStore } from "../stores/PaymentThreadStore";
 
+const reminderMessage = config.reminder_message;
+
 export async function remindUnpaidSubscriber(client: Client) {
+
+  if (paymentThreadStore.getThreadId() === null) {
+    return;
+  }
+
   const alreadyPaidList = paymentThreadStore.getPaidSubscriberIdList();
   const threadUrl = paymentThreadStore.getThreadUrl();
   const unpaidList = [];
@@ -15,6 +22,6 @@ export async function remindUnpaidSubscriber(client: Client) {
 
   for (const userId of unpaidList) {
     const user = await client.users.fetch(userId);
-    await user.send(`จ่ายตังด้วย ${threadUrl}`);
+    await user.send(`${reminderMessage} ${threadUrl}`);
   }
 }

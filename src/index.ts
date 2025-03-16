@@ -1,11 +1,10 @@
 import { BaseInteraction, Client, Events, GatewayIntentBits } from "discord.js";
 import * as dotenv from "dotenv";
-import { createPaymentThread } from "./actions/CreatePaymentThread";
+import { addPaidSubscriber } from "./actions/AddPaidSubscriber";
 import { slashCommandList } from "./commands";
 import { SlashCommandObject } from "./scripts/types/SlashCommandObject";
+import { initScheduling } from "./timer";
 import { getSlashCommandObject } from "./utils/slash-command";
-import { addPaidSubscriber } from "./actions/AddPaidSubscriber";
-import { startCreatePaymentThreadTimer, startRemindUnpaidSubscriberTimer } from "./timer";
 
 dotenv.config();
 let commands: SlashCommandObject;
@@ -21,9 +20,7 @@ const client = new Client({
 client.once(Events.ClientReady, async (client) => {
 	console.log(`✅ Ready! Logged in as ${client.user?.tag}`);
 	commands = getSlashCommandObject(slashCommandList);
-	// createPaymentThread(client);
-	startCreatePaymentThreadTimer(client);
-	startRemindUnpaidSubscriberTimer(client);
+	initScheduling(client);
 });
 
 client.on("interactionCreate", async (interaction: BaseInteraction) => {

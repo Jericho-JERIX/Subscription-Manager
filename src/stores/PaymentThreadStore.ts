@@ -34,16 +34,19 @@ class PaymentThreadStore {
 	createNewThread(
 		thread: ThreadChannel<boolean>,
         channel: TextChannel,
-		intervalTask: NodeJS.Timeout
 	) {
 		this.threadId = thread.id;
         this.threadUrl = `https://discord.com/channels/${thread.guildId}/${thread.id}`;
+		this.intervalTask = null;
 		this.channel = channel;
-        if (this.intervalTask) {
+		this.paidSubscriberIdList = [];
+	}
+
+	setIntervalTask(intervalTask: NodeJS.Timeout) {
+		if (this.intervalTask) {
 			clearInterval(this.intervalTask);
 		}
 		this.intervalTask = intervalTask;
-		this.paidSubscriberIdList = [];
 	}
 
 	addPaidSubscriberId(subscriberId: string) {
