@@ -5,6 +5,7 @@ import { slashCommandList } from "./commands";
 import { SlashCommandObject } from "./scripts/types/SlashCommandObject";
 import { initScheduling } from "./timer";
 import { getSlashCommandObject } from "./utils/slash-command";
+import { validateSlip } from "./actions/ValidateSlip";
 
 dotenv.config();
 let commands: SlashCommandObject;
@@ -14,6 +15,8 @@ const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildIntegrations,
 		GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
 	],
 });
 
@@ -41,8 +44,8 @@ client.on("interactionCreate", async (interaction: BaseInteraction) => {
 	}
 });
 
-client.on("threadMembersUpdate", async (message) =>
-	addPaidSubscriber(message)
+client.on("messageCreate", async (message) =>
+    validateSlip(message)
 );
 
 client.login(process.env.TOKEN);

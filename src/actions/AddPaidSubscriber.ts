@@ -19,7 +19,7 @@ export async function addPaidSubscriber(
       member.joinedAt &&
       member.id !== owner_id &&
       member.thread.id === threadId &&
-      paymentThreadStore.paidSubscriberIdList.includes(member.id)
+      paymentThreadStore.getPaidSubscriberIdList().includes(member.id)
     ) {
       paymentThreadStore.addPaidSubscriberId(member.id);
       await channel.send(

@@ -1,11 +1,11 @@
 import { TextChannel, ThreadChannel } from "discord.js";
 
 class PaymentThreadStore {
-	threadId: string | null;
-	threadUrl: string | null;
-    channel: TextChannel | null;
-	intervalTask: NodeJS.Timeout | null;
-	paidSubscriberIdList: string[];
+	private threadId: string | null;
+	private threadUrl: string | null;
+    private channel: TextChannel | null;
+	private intervalTask: NodeJS.Timeout | null;
+	private paidSubscriberIdList: string[];
 
 	constructor() {
 		this.threadId = null;
