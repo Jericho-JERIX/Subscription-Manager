@@ -22,8 +22,8 @@ export function initScheduling(client: Client) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(12,0,0)
 
-    const delta = tomorrow.getTime() - Date.now();
-
+    const delta = (tomorrow.getTime() - Date.now()) % 86400000;
+    
     const task = () => {
         const now = new Date();
         remindUnpaidSubscriber(client);

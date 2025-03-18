@@ -22,8 +22,8 @@ export const Status: SlashCommand = {
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(12,0,0)
 
-        const delta = tomorrow.getTime() - Date.now();
-
+        const delta = (tomorrow.getTime() - Date.now()) % 86400000;
+        
         interaction.reply({
             content: `The next task will be triggered in \`${Math.floor(delta/1000)}s\` (\`${tomorrow}\`)`,
             ephemeral: true,
