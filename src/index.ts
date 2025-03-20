@@ -6,6 +6,8 @@ import { SlashCommandObject } from "./scripts/types/SlashCommandObject";
 import { initScheduling } from "./timer";
 import { getSlashCommandObject } from "./utils/slash-command";
 import { validateSlip } from "./actions/ValidateSlip";
+import MessageCreateEvent from "./events/MessageCreate.event";
+import { paymentThreadStore } from "./stores/PaymentThreadStore";
 
 dotenv.config();
 let commands: SlashCommandObject;
@@ -15,8 +17,9 @@ const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildIntegrations,
 		GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.MessageContent,
 	],
 });
 
@@ -27,6 +30,7 @@ client.once(Events.ClientReady, async (client) => {
 });
 
 client.on("interactionCreate", async (interaction: BaseInteraction) => {
+    console.log(paymentThreadStore)
 	if (interaction.isChatInputCommand()) {
 		await commands[interaction.commandName].onCommandExecuted(interaction);
 	} else if (interaction.isButton()) {
@@ -45,7 +49,7 @@ client.on("interactionCreate", async (interaction: BaseInteraction) => {
 });
 
 client.on("messageCreate", async (message) =>
-    validateSlip(message)
+	MessageCreateEvent.validateSlip(message)
 );
 
 client.login(process.env.TOKEN);
