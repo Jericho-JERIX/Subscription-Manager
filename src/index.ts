@@ -8,6 +8,7 @@ import { getSlashCommandObject } from "./utils/slash-command";
 import { validateSlip } from "./actions/ValidateSlip";
 import MessageCreateEvent from "./events/MessageCreate.event";
 import { paymentThreadStore } from "./stores/PaymentThreadStore";
+import MessageReactionAddEvent from "./events/MessageReactionAdd.event";
 
 dotenv.config();
 let commands: SlashCommandObject;
@@ -51,5 +52,9 @@ client.on("interactionCreate", async (interaction: BaseInteraction) => {
 client.on("messageCreate", async (message) =>
 	MessageCreateEvent.validateSlip(message)
 );
+
+client.on("messageReactionAdd", async (message) => {
+    MessageReactionAddEvent.manuallyValidatePayment(message)
+})
 
 client.login(process.env.TOKEN);

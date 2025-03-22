@@ -18,8 +18,7 @@ export default class SubscriberService {
             !paymentThreadStore.getPaidSubscriberIdList().includes(member.id) &&
             subscriberIds.includes(member.id)
         ) {
-            paymentThreadStore.addPaidSubscriberId(member.id);
-            
+            paymentThreadStore.setSubscriberStatus(member.id, "PAID");
         }
     }
 

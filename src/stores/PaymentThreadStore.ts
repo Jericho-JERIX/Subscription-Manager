@@ -1,16 +1,25 @@
 import { TextChannel, ThreadChannel } from "discord.js";
+import { config } from "../config";
+
+const paidSubscriberIds = config.subscriber_ids;
+
+type PaidSubscriberStatus = "PAID" | "UNPAID" | "PENDING";
+interface PaidSubscriber {
+    userId: string;
+    status: PaidSubscriberStatus;
+}
 
 class PaymentThreadStore {
 	private threadId: string | null;
 	private threadUrl: string | null;
     private channel: TextChannel | null;
-	private paidSubscriberIdList: string[];
+	private subscriberList: PaidSubscriber[];
 
 	constructor() {
 		this.threadId = null;
 		this.threadUrl = null;
         this.channel = null;
-		this.paidSubscriberIdList = [];
+		this.subscriberList = [];
 	}
 
 	getThreadId() {
@@ -18,7 +27,7 @@ class PaymentThreadStore {
 	}
 
 	getPaidSubscriberIdList() {
-		return this.paidSubscriberIdList;
+		return this.subscriberList.map((ps) => ps.userId);
 	}
 
 	getThreadUrl() {
@@ -36,13 +45,15 @@ class PaymentThreadStore {
 		this.threadId = thread.id;
         this.threadUrl = `https://discord.com/channels/${thread.guildId}/${thread.id}`;
 		this.channel = channel;
-		this.paidSubscriberIdList = []
+		this.subscriberList = paidSubscriberIds.map((id) => ({ userId: id, status: "UNPAID" }));
 	}
 
-	addPaidSubscriberId(subscriberId: string) {
-		if (!this.paidSubscriberIdList.includes(subscriberId)) {
-			this.paidSubscriberIdList.push(subscriberId);
-		}
+	setSubscriberStatus(subscriberId: string, status: PaidSubscriberStatus) {
+		for (const sub of this.subscriberList) {
+            if (sub.userId === subscriberId) {
+                sub.status = status;
+            }
+        }
 	}
 }
 
