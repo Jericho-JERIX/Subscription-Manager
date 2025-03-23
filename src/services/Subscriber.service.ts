@@ -15,15 +15,19 @@ export default class SubscriberService {
 
         if (
             member.id !== owner_id &&
-            !paymentThreadStore.getPaidSubscriberIdList().includes(member.id) &&
+            !paymentThreadStore.getUnpaidSubscriberIdList().includes(member.id) &&
             subscriberIds.includes(member.id)
         ) {
-            paymentThreadStore.setSubscriberStatus(member.id, "PAID");
+            paymentThreadStore.setSubscriberStatus(member.id, true);
         }
     }
 
-    static getUnpaidSubscribers() {
-        return paymentThreadStore.getPaidSubscriberIdList()
+    static getUnpaidSubscriberIdList() {
+        return paymentThreadStore.getUnpaidSubscriberIdList()
+    }
+
+    static getSubscriberPendingMessage(subscriberId: string) {
+        return paymentThreadStore.getSubscriberPendingMessage(subscriberId)
     }
 }
 
@@ -36,7 +40,7 @@ export default class SubscriberService {
 
 //     if (
 //         member.id !== owner_id &&
-//         paymentThreadStore.getPaidSubscriberIdList().includes(member.id)
+//         paymentThreadStore.getUnpaidSubscriberIdList().includes(member.id)
 //     ) {
 //         paymentThreadStore.addPaidSubscriberId(member.id);
 //         await channel.send(

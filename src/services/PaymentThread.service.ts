@@ -6,7 +6,7 @@ export default class PaymentThreadService {
 		return {
 			threadId: paymentThreadStore.getThreadId(),
 			threadUrl: paymentThreadStore.getThreadUrl(),
-			paidSubscriberIdList: paymentThreadStore.getPaidSubscriberIdList(),
+			paidSubscriberIdList: paymentThreadStore.getUnpaidSubscriberIdList(),
 			channel: paymentThreadStore.getChannel(),
 		};
 	}

@@ -14,9 +14,9 @@ export async function addPaidSubscriber(member: GuildMember) {
 
 	if (
 		member.id !== owner_id &&
-		paymentThreadStore.getPaidSubscriberIdList().includes(member.id)
+		paymentThreadStore.getUnpaidSubscriberIdList().includes(member.id)
 	) {
-		paymentThreadStore.addPaidSubscriberId(member.id);
+		paymentThreadStore.setSubscriberStatus(member.id, true);
 		await channel.send(
 			`✅ ${createMentionTag(
 				member.id

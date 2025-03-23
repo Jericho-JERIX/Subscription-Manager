@@ -1,12 +1,12 @@
-import { TextChannel, ThreadChannel } from "discord.js";
+import { Message, TextChannel, ThreadChannel } from "discord.js";
 import { config } from "../config";
 
 const paidSubscriberIds = config.subscriber_ids;
 
-type PaidSubscriberStatus = "PAID" | "UNPAID" | "PENDING";
 interface PaidSubscriber {
     userId: string;
-    status: PaidSubscriberStatus;
+    isPaid: boolean;
+	currentPendingMessage: Message | null;
 }
 
 class PaymentThreadStore {
@@ -26,10 +26,6 @@ class PaymentThreadStore {
 		return this.threadId;
 	}
 
-	getPaidSubscriberIdList() {
-		return this.subscriberList.map((ps) => ps.userId);
-	}
-
 	getThreadUrl() {
 		return this.threadUrl;
 	}
@@ -38,6 +34,10 @@ class PaymentThreadStore {
         return this.channel;
     }
 
+	getUnpaidSubscriberIdList() {
+		return this.subscriberList.filter((sub) => !sub.isPaid).map((sub) => sub.userId);
+	}
+
 	createNewThread(
 		thread: ThreadChannel<boolean>,
         channel: TextChannel,
@@ -45,15 +45,32 @@ class PaymentThreadStore {
 		this.threadId = thread.id;
         this.threadUrl = `https://discord.com/channels/${thread.guildId}/${thread.id}`;
 		this.channel = channel;
-		this.subscriberList = paidSubscriberIds.map((id) => ({ userId: id, status: "UNPAID" }));
+		this.subscriberList = paidSubscriberIds.map((id) => ({
+			userId: id,
+			isPaid: false,
+			currentPendingMessage: null,
+		}));
 	}
 
-	setSubscriberStatus(subscriberId: string, status: PaidSubscriberStatus) {
+	setSubscriberStatus(subscriberId: string, status: boolean) {
 		for (const sub of this.subscriberList) {
             if (sub.userId === subscriberId) {
-                sub.status = status;
+				sub.isPaid = status;
             }
         }
+	}
+
+	setSubscriberPendingMessage(subscriberId: string, message: Message | null) {
+		for (const sub of this.subscriberList) {
+			if (sub.userId === subscriberId) {
+				sub.currentPendingMessage = message;
+			}
+		}
+	}
+
+	getSubscriberPendingMessage(subscriberId: string) {
+		const sub = this.subscriberList.find((sub) => sub.userId === subscriberId);
+		return sub?.currentPendingMessage;
 	}
 }
 

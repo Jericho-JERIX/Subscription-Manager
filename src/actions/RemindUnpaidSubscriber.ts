@@ -10,7 +10,7 @@ export async function remindUnpaidSubscriber(client: Client) {
     return;
   }
 
-  const alreadyPaidList = paymentThreadStore.getPaidSubscriberIdList();
+  const alreadyPaidList = paymentThreadStore.getUnpaidSubscriberIdList();
   const threadUrl = paymentThreadStore.getThreadUrl();
   const unpaidList = [];
 

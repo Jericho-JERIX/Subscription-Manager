@@ -27,7 +27,7 @@ export async function validateSlip(message: Message<boolean>) {
 	if (
 		!member ||
 		paymentThreadStore
-			.getPaidSubscriberIdList()
+			.getUnpaidSubscriberIdList()
 			.includes(member.user.id) ||
 		!subscriberIds.includes(member.user.id)
 	) {
