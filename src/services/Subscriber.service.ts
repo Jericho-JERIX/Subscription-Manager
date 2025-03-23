@@ -1,52 +1,44 @@
-import { Collection, GuildMember, ThreadMember } from "discord.js";
+import { Collection, GuildMember, Message, ThreadMember } from "discord.js";
 import { paymentThreadStore } from "../stores/PaymentThreadStore";
 import { createMentionTag } from "../utils/discord";
 import { config } from "../config";
+import PaymentThreadService from "./PaymentThread.service";
 
 const subscriberIds = config.subscriber_ids;
 
 export default class SubscriberService {
-    static async addPaidSubscriber(member: GuildMember) {
-        const channel = paymentThreadStore.getChannel();
-        const { owner_id } = config;
-        if (!channel) {
-            return;
-        }
+	static async addPaidSubscriber(member: GuildMember) {
+		const channel = paymentThreadStore.getChannel();
+		const thread = PaymentThreadService.get();
+		const { owner_id } = config;
+		if (!channel) {
+			return false;
+		}
 
-        if (
-            member.id !== owner_id &&
-            !paymentThreadStore.getUnpaidSubscriberIdList().includes(member.id) &&
-            subscriberIds.includes(member.id)
-        ) {
-            paymentThreadStore.setSubscriberStatus(member.id, true);
-        }
-    }
+		if (
+			member.id !== owner_id &&
+			!thread.subscriberList.find((sub) => sub.userId === member.id)
+				?.isPaid
+		) {
+			paymentThreadStore.setSubscriberStatus(member.id, true);
+			paymentThreadStore.setSubscriberPendingMessage(member.id, null);
+			return true;
+		}
+		return false;
+	}
 
-    static getUnpaidSubscriberIdList() {
-        return paymentThreadStore.getUnpaidSubscriberIdList()
-    }
+	static async setSubscriberPendingMessage(
+		subscriberId: string,
+		message: Message
+	) {
+		paymentThreadStore.setSubscriberPendingMessage(subscriberId, message);
+	}
 
-    static getSubscriberPendingMessage(subscriberId: string) {
-        return paymentThreadStore.getSubscriberPendingMessage(subscriberId)
-    }
+	static getUnpaidSubscriberIdList() {
+		return paymentThreadStore.getUnpaidSubscriberIdList();
+	}
+
+	static getSubscriberPendingMessage(subscriberId: string) {
+		return paymentThreadStore.getSubscriberPendingMessage(subscriberId);
+	}
 }
-
-// export async function addPaidSubscriber(member: GuildMember) {
-//     const channel = paymentThreadStore.getChannel();
-//     const { owner_id } = config;
-//     if (!channel) {
-//         return;
-//     }
-
-//     if (
-//         member.id !== owner_id &&
-//         paymentThreadStore.getUnpaidSubscriberIdList().includes(member.id)
-//     ) {
-//         paymentThreadStore.addPaidSubscriberId(member.id);
-//         await channel.send(
-//             `✅ ${createMentionTag(
-//                 member.id
-//             )} ${paidMessage} ||${createMentionTag(owner_id)}||`
-//         );
-//     }
-// }

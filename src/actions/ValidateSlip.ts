@@ -1,23 +1,16 @@
-import { Collection, Message, MessageType, ThreadMember } from "discord.js";
-import { config } from "../config";
-import { paymentThreadStore } from "../stores/PaymentThreadStore";
 import axios from "axios";
+import { Message } from "discord.js";
 import { writeFileSync } from "fs";
+import { config } from "../config";
 import { containWord } from "../image-processing/extract-number";
+import { paymentThreadStore } from "../stores/PaymentThreadStore";
 import { addPaidSubscriber } from "./AddPaidSubscriber";
-import PaymentThreadService from "../services/PaymentThread.service";
 
 const subscriberIds = config.subscriber_ids;
 const SIZE_LIMIT = 2.5 * 1024 * 1024;
 
 export async function validateSlip(message: Message<boolean>) {
 	const threadId = paymentThreadStore.getThreadId();
-
-    console.log("This is the threadId: ", threadId);
-    console.log("This is the message.channelId: ", message.channelId);
-
-    const thread = PaymentThreadService.get();
-
 
 	if (message.channelId !== threadId) {
 		return;
@@ -60,9 +53,6 @@ export async function validateSlip(message: Message<boolean>) {
 		addPaidSubscriber(message.member);
 	} else {
 		message.react("❌");
-		// Remove reaction
-		// message.reactions.resolve("❌")?.users.remove();
 	}
 
-	// console.log()
 }

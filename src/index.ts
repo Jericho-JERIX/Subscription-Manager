@@ -31,7 +31,6 @@ client.once(Events.ClientReady, async (client) => {
 });
 
 client.on("interactionCreate", async (interaction: BaseInteraction) => {
-    console.log(paymentThreadStore)
 	if (interaction.isChatInputCommand()) {
 		await commands[interaction.commandName].onCommandExecuted(interaction);
 	} else if (interaction.isButton()) {

@@ -38,6 +38,10 @@ class PaymentThreadStore {
 		return this.subscriberList.filter((sub) => !sub.isPaid).map((sub) => sub.userId);
 	}
 
+    getSubscriberList() {
+        return this.subscriberList;
+    }
+
 	createNewThread(
 		thread: ThreadChannel<boolean>,
         channel: TextChannel,
