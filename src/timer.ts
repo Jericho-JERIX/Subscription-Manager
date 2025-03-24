@@ -6,16 +6,6 @@ import { config } from "./config";
 
 const paymentDate = config.payment_date;
 
-// function monthly(func: () => any,targetDate: Date) {
-//     const countdown = getNextRenewalCountdown(targetDate);
-//     console.log("startCreatePaymentThreadTimer Will countdown in", countdown)
-//     setTimeout(() => {
-//         const newCountdown = getNextRenewalDate(targetDate, 1);
-//         func()
-//         monthly(func, newCountdown);
-//     }, countdown);
-// }
-
 export function initScheduling(client: Client) {
 
     const tomorrow = new Date();

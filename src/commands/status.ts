@@ -11,7 +11,7 @@ export const Status: SlashCommand = {
 
     async onCommandExecuted(interaction) {
         if (interaction.user.id !== ownerId) {
-            interaction.reply({
+            await interaction.reply({
                 content: "You are not allowed to use this command!",
                 ephemeral: true,
             });
@@ -24,7 +24,7 @@ export const Status: SlashCommand = {
 
         const delta = (tomorrow.getTime() - Date.now()) % 86400000;
         
-        interaction.reply({
+        await interaction.reply({
             content: `The next task will be triggered in \`${Math.floor(delta/1000)}s\` (\`${tomorrow}\`)`,
             ephemeral: true,
         });

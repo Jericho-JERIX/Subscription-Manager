@@ -3,3 +3,8 @@
 node_modules/
 build/
 config.json
+
+dumps/*
+!dumps/*.gitkeep
+
+env
