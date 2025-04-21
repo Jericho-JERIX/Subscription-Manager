@@ -99,6 +99,5 @@ export const Ping: SlashCommand = {
 				await interaction.update({ content: `Select 2` });
 				break;
 		}
-		console.log(interaction);
 	},
 };

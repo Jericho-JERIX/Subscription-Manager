@@ -6,6 +6,7 @@ import { config } from "../config";
 import { writeFileSync } from "fs";
 import ImageProcessingService from "../services/ImageProcessing.service";
 import { createMentionTag } from "../utils/discord";
+import { createLogMessage } from "../utils/log";
 
 const SIZE_LIMIT = 2.5 * 1024 * 1024;
 const subscriberIds = config.subscriber_ids;
@@ -18,7 +19,10 @@ export default class MessageCreateEvent {
 		const unpaidIds = SubscriberService.getUnpaidSubscriberIdList();
 
 		if (message.author.bot) {
-			console.log("Message from bot");
+			createLogMessage({
+				title: "MessageCreateEvent.validateSlip",
+				message: "Message from bot",
+			});
 			return;
 		}
 
@@ -27,14 +31,20 @@ export default class MessageCreateEvent {
 			thread.threadId === null ||
 			thread.threadUrl === null
 		) {
-			console.log("Thread not found");
+			createLogMessage({
+				title: "MessageCreateEvent.validateSlip",
+				message: "Thread not found",
+			});
 			return;
 		}
 
 		const member = message.member;
 
 		if (!member || !unpaidIds.includes(member.user.id)) {
-			console.log("Member not found");
+			createLogMessage({
+				title: "MessageCreateEvent.validateSlip",
+				message: "Member not found",
+			});
 			return;
 		}
 
@@ -45,7 +55,10 @@ export default class MessageCreateEvent {
 			!attachment.contentType?.includes("image") ||
 			attachment.size > SIZE_LIMIT
 		) {
-			console.log("Attachment not found");
+			createLogMessage({
+				title: "MessageCreateEvent.validateSlip",
+				message: "Attachment not found",
+			});
 			return;
 		}
 		const fileType = attachment.contentType.split("/")[1];
@@ -68,7 +81,10 @@ export default class MessageCreateEvent {
 				message.member
 			);
 			if (!success) {
-				console.log("Failed to add paid subscriber");
+				createLogMessage({
+					title: "MessageCreateEvent.validateSlip",
+					message: "Failed to add paid subscriber",
+				});
 				return;
 			}
 			await message.react("✅");
@@ -83,12 +99,15 @@ export default class MessageCreateEvent {
 				message
 			);
 			await message.react("⚠️");
-            const ownerAccount = await message.guild?.members.fetch(ownerId)
-            if (!ownerAccount) {
-                console.log("Owner not found");
-                return;
-            }
-            await ownerAccount.send(`⚠️ เช็คสลิป ${message.url}`);
+			const ownerAccount = await message.guild?.members.fetch(ownerId);
+			if (!ownerAccount) {
+				createLogMessage({
+					title: "MessageCreateEvent.validateSlip",
+					message: "Owner not found",
+				});
+				return;
+			}
+			await ownerAccount.send(`⚠️ เช็คสลิป ${message.url}`);
 		}
 	}
 }

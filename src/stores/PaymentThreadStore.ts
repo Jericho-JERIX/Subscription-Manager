@@ -22,6 +22,15 @@ class PaymentThreadStore {
 		this.subscriberList = [];
 	}
 
+    getStoreData() {
+        return {
+            threadId: this.threadId,
+            threadUrl: this.threadUrl,
+            channel: this.channel,
+            subscriberList: this.subscriberList,
+        }
+    }
+
 	getThreadId() {
 		return this.threadId;
 	}
