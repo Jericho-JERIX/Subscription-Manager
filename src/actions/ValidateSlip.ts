@@ -19,7 +19,7 @@ export async function validateSlip(message: Message<boolean>) {
 	const member = message.member;
 	if (
 		!member ||
-		paymentThreadStore
+		!paymentThreadStore
 			.getUnpaidSubscriberIdList()
 			.includes(member.user.id) ||
 		!subscriberIds.includes(member.user.id)
@@ -44,7 +44,7 @@ export async function validateSlip(message: Message<boolean>) {
 	const filename = `dumps/${attachment.id}.${fileType}`;
 
 	const buffer = Buffer.from(response.data, "binary");
-	writeFileSync(filename, buffer);
+	writeFileSync(filename, buffer.toString("base64"));
 
 	const isValidSlip = await containWord(filename, "84.00");
 
@@ -54,5 +54,4 @@ export async function validateSlip(message: Message<boolean>) {
 	} else {
 		message.react("❌");
 	}
-
 }
