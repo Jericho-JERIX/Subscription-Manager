@@ -1,6 +1,7 @@
 import { InvokePayment } from "./commands/invoke-payment";
 import { InvokeReminder } from "./commands/invoke-reminder";
 import { LoadPaymentThread } from "./commands/load-payment-thread";
+import { OTP } from "./commands/otp";
 import { Ping } from "./commands/ping";
 import { Status } from "./commands/status";
 import { ViewStore } from "./commands/view-store-data";
@@ -11,5 +12,6 @@ export const slashCommandList: SlashCommand[] = [
 	InvokePayment,
 	LoadPaymentThread,
     InvokeReminder,
-    ViewStore
+    ViewStore,
+    OTP
 ];

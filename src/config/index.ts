@@ -12,6 +12,9 @@ export interface Config {
         name: string;
         reason: string;
     }
+    n8n: {
+        otp_webhook_url: string;
+    }
 }
 
 export const config: Config = JSON.parse(readFileSync("config.json", "utf-8"));
