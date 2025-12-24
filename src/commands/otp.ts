@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
-import N8N from "../n8n/N8n";
 import { SlashCommand } from "../scripts/types/SlashCommand";
+import N8N from "../n8n/n8n";
 
 export const OTP: SlashCommand = {
 	slashCommandBuilder: new SlashCommandBuilder()
