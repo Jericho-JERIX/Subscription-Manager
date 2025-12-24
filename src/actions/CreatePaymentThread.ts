@@ -22,7 +22,7 @@ export async function createPaymentThread(client: Client) {
     const now = new Date();
     const dmString = `${now.getMonth()+1}/${now.getFullYear()}`
 
-    channel.send(`${subscriberIds.map(createMentionTag).join(' ')} ${paymentMessage}`);
+    await channel.send(`${subscriberIds.map(createMentionTag).join(' ')} ${paymentMessage}`);
     const thread = await channel.threads.create({
 		name: threadDetail.name + ' ' + dmString,
 		reason: threadDetail.reason + ' ' + dmString,

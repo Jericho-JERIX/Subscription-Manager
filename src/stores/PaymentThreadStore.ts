@@ -1,26 +1,38 @@
-import { TextChannel, ThreadChannel } from "discord.js";
+import { Message, TextChannel, ThreadChannel } from "discord.js";
+import { config } from "../config";
+
+const paidSubscriberIds = config.subscriber_ids;
+
+interface PaidSubscriber {
+    userId: string;
+    isPaid: boolean;
+	currentPendingMessage: Message | null;
+}
 
 class PaymentThreadStore {
-	threadId: string | null;
-	threadUrl: string | null;
-    channel: TextChannel | null;
-	intervalTask: NodeJS.Timeout | null;
-	paidSubscriberIdList: string[];
+	private threadId: string | null;
+	private threadUrl: string | null;
+    private channel: TextChannel | null;
+	private subscriberList: PaidSubscriber[];
 
 	constructor() {
 		this.threadId = null;
 		this.threadUrl = null;
         this.channel = null;
-		this.intervalTask = null;
-		this.paidSubscriberIdList = [];
+		this.subscriberList = [];
 	}
+
+    getStoreData() {
+        return {
+            threadId: this.threadId,
+            threadUrl: this.threadUrl,
+            channel: this.channel,
+            subscriberList: this.subscriberList,
+        }
+    }
 
 	getThreadId() {
 		return this.threadId;
-	}
-
-	getPaidSubscriberIdList() {
-		return this.paidSubscriberIdList;
 	}
 
 	getThreadUrl() {
@@ -31,28 +43,47 @@ class PaymentThreadStore {
         return this.channel;
     }
 
+	getUnpaidSubscriberIdList() {
+		return this.subscriberList.filter((sub) => !sub.isPaid).map((sub) => sub.userId);
+	}
+
+    getSubscriberList() {
+        return this.subscriberList;
+    }
+
 	createNewThread(
 		thread: ThreadChannel<boolean>,
         channel: TextChannel,
 	) {
 		this.threadId = thread.id;
         this.threadUrl = `https://discord.com/channels/${thread.guildId}/${thread.id}`;
-		this.intervalTask = null;
 		this.channel = channel;
-		this.paidSubscriberIdList = [];
+		this.subscriberList = paidSubscriberIds.map((id) => ({
+			userId: id,
+			isPaid: false,
+			currentPendingMessage: null,
+		}));
 	}
 
-	setIntervalTask(intervalTask: NodeJS.Timeout) {
-		if (this.intervalTask) {
-			clearInterval(this.intervalTask);
-		}
-		this.intervalTask = intervalTask;
+	setSubscriberStatus(subscriberId: string, status: boolean) {
+		for (const sub of this.subscriberList) {
+            if (sub.userId === subscriberId) {
+				sub.isPaid = status;
+            }
+        }
 	}
 
-	addPaidSubscriberId(subscriberId: string) {
-		if (!this.paidSubscriberIdList.includes(subscriberId)) {
-			this.paidSubscriberIdList.push(subscriberId);
+	setSubscriberPendingMessage(subscriberId: string, message: Message | null) {
+		for (const sub of this.subscriberList) {
+			if (sub.userId === subscriberId) {
+				sub.currentPendingMessage = message;
+			}
 		}
+	}
+
+	getSubscriberPendingMessage(subscriberId: string) {
+		const sub = this.subscriberList.find((sub) => sub.userId === subscriberId);
+		return sub?.currentPendingMessage;
 	}
 }
 

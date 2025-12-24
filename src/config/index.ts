@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-interface Config {
+export interface Config {
     owner_id: string;
     channel_id: string;
     subscriber_ids: string[];
