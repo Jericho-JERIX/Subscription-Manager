@@ -3,6 +3,7 @@ import { Client } from "discord.js";
 import { createPaymentThread } from "./actions/CreatePaymentThread";
 import { remindUnpaidSubscriber } from "./actions/RemindUnpaidSubscriber";
 import { config } from "./config";
+import ImageProcessingService from "./services/ImageProcessing.service";
 
 const paymentDate = config.payment_date;
 
@@ -32,4 +33,16 @@ export function initScheduling(client: Client) {
 			.nextDate()
 			.toLocaleString({ timeZone: "Asia/Bangkok" })}`
 	);
+
+    const clearDumpedImagesJob = CronJob.from({
+        cronTime: "0 0 * * *",
+        onTick: () => ImageProcessingService.clearDumpedImages(),
+        start: true,
+        timeZone: "Asia/Bangkok",
+    });
+    console.log(
+        `🕒 Scheduled clear dumped images will be triggered at ${clearDumpedImagesJob
+            .nextDate()
+            .toLocaleString({ timeZone: "Asia/Bangkok" })}`
+    );
 }
