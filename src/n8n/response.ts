@@ -1,3 +1,3 @@
 export interface NetflixOtpResponse {
-    otp_url: string;
+    otp_url: string | null;
 }
