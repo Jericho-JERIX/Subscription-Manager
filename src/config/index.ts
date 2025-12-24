@@ -12,6 +12,10 @@ export interface Config {
         name: string;
         reason: string;
     }
+    gemini: {
+        apiKey: string;
+        model: string;
+    }
 }
 
 export const config: Config = JSON.parse(readFileSync("config.json", "utf-8"));

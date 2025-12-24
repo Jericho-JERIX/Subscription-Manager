@@ -7,6 +7,8 @@ import { writeFileSync } from "fs";
 import ImageProcessingService from "../services/ImageProcessing.service";
 import { createMentionTag } from "../utils/discord";
 import { createLogMessage } from "../utils/log";
+import { Type } from "@google/genai";
+import Gemini from "../gemini/gemini";
 
 const SIZE_LIMIT = 2.5 * 1024 * 1024;
 const subscriberIds = config.subscriber_ids;
@@ -14,39 +16,45 @@ const paidMessage = config.on_paid_message;
 const ownerId = config.owner_id;
 
 export default class MessageCreateEvent {
-	static async validateSlip(message: Message<boolean>) {
+
+	private readonly gemini: Gemini
+	constructor(gemini: Gemini) {
+		this.gemini = gemini;
+	}
+
+	async validateSlip(message: Message<boolean>) {
 		const thread = PaymentThreadService.get();
 		const unpaidIds = SubscriberService.getUnpaidSubscriberIdList();
 
-		if (message.author.bot) {
-			createLogMessage({
-				title: "MessageCreateEvent.validateSlip",
-				message: "Message from bot",
-			});
-			return;
-		}
+		// if (message.author.bot) {
+		// 	createLogMessage({
+		// 		title: "MessageCreateEvent.validateSlip",
+		// 		message: "Message from bot",
+		// 	});
+		// 	return;
+		// }
 
-		if (
-			thread.channel === null ||
-			thread.threadId === null ||
-			thread.threadUrl === null
-		) {
-			createLogMessage({
-				title: "MessageCreateEvent.validateSlip",
-				message: "Thread not found",
-			});
-			return;
-		}
+		// if (
+		// 	thread.channel === null ||
+		// 	thread.threadId === null ||
+		// 	thread.threadUrl === null
+		// ) {
+		// 	createLogMessage({
+		// 		title: "MessageCreateEvent.validateSlip",
+		// 		message: "Thread not found",
+		// 	});
+		// 	return;
+		// }
 
-		const member = message.member;
+		// const member = message.member;
 
-		if (!member || !unpaidIds.includes(member.user.id)) {
-			createLogMessage({
-				title: "MessageCreateEvent.validateSlip",
-				message: "Member not found",
-			});
-			return;
-		}
+		// if (!member || !unpaidIds.includes(member.user.id)) {
+		// 	createLogMessage({
+		// 		title: "MessageCreateEvent.validateSlip",
+		// 		message: "Member not found",
+		// 	});
+		// 	return;
+		// }
 
 		const attachment = message.attachments.first();
 
@@ -69,45 +77,87 @@ export default class MessageCreateEvent {
 		const filename = `dumps/${attachment.id}.${fileType}`;
 
 		const buffer = Buffer.from(response.data, "binary");
-		writeFileSync(filename, buffer);
+		const base64 = buffer.toString("base64");
+		writeFileSync(filename, String(buffer));
+
+		const result = await this.validateSlipByGemini(base64, attachment.contentType);
+
+		console.log('Output\n', result);
 
 		const isValidSlip = await ImageProcessingService.containWord(
 			filename,
 			"84.00"
 		);
 
-		if (isValidSlip) {
-			const success = await SubscriberService.addPaidSubscriber(
-				message.member
-			);
-			if (!success) {
-				createLogMessage({
-					title: "MessageCreateEvent.validateSlip",
-					message: "Failed to add paid subscriber",
-				});
-				return;
-			}
-			await message.react("✅");
-			await thread.channel.send(
-				`✅ ${createMentionTag(
-					member.id
-				)} ${paidMessage} ||${createMentionTag(ownerId)}||`
-			);
-		} else {
-			await SubscriberService.setSubscriberPendingMessage(
-				member.id,
-				message
-			);
-			await message.react("⚠️");
-			const ownerAccount = await message.guild?.members.fetch(ownerId);
-			if (!ownerAccount) {
-				createLogMessage({
-					title: "MessageCreateEvent.validateSlip",
-					message: "Owner not found",
-				});
-				return;
-			}
-			await ownerAccount.send(`⚠️ เช็คสลิป ${message.url}`);
+		// if (isValidSlip) {
+		// 	const success = await SubscriberService.addPaidSubscriber(
+		// 		message.member
+		// 	);
+		// 	if (!success) {
+		// 		createLogMessage({
+		// 			title: "MessageCreateEvent.validateSlip",
+		// 			message: "Failed to add paid subscriber",
+		// 		});
+		// 		return;
+		// 	}
+		// 	await message.react("✅");
+		// 	await thread.channel.send(
+		// 		`✅ ${createMentionTag(
+		// 			member.id
+		// 		)} ${paidMessage} ||${createMentionTag(ownerId)}||`
+		// 	);
+		// } else {
+		// 	await SubscriberService.setSubscriberPendingMessage(
+		// 		member.id,
+		// 		message
+		// 	);
+		// 	await message.react("⚠️");
+		// 	const ownerAccount = await message.guild?.members.fetch(ownerId);
+		// 	if (!ownerAccount) {
+		// 		createLogMessage({
+		// 			title: "MessageCreateEvent.validateSlip",
+		// 			message: "Owner not found",
+		// 		});
+		// 		return;
+		// 	}
+		// 	await ownerAccount.send(`⚠️ เช็คสลิป ${message.url}`);
+		// }
+	}
+
+	async validateSlipByGemini(base64: string, mimeType: string) {
+		const struct = {
+			type: Type.OBJECT,
+			properties: {
+				amount: {
+					type: Type.NUMBER
+				},
+				date: {
+					type: Type.STRING
+				},
+				confidence: {
+					type: Type.NUMBER
+				}
+			},
+			required: ["amount", "date", "confidence"]
 		}
+		console.log("GEMINI");
+		const result = await this.gemini.generateStructuredOutput<{ isValid: boolean }>([
+			{
+				text: `
+				Extract the amount and date from the slip image.
+				- Date usually on top-left of the image.
+				- Amount usually on bottom-left of the image.
+				- Return only the amount and date, no other text.
+				- Return the confidence of the answer between 0 and 1.
+				`,
+			},
+			{
+				inlineData: {
+					mimeType: mimeType,
+					data: base64
+				}
+			}
+		], struct);
+		return result;
 	}
 }

@@ -9,6 +9,8 @@ import { validateSlip } from "./actions/ValidateSlip";
 import MessageCreateEvent from "./events/MessageCreate.event";
 import { paymentThreadStore } from "./stores/PaymentThreadStore";
 import MessageReactionAddEvent from "./events/MessageReactionAdd.event";
+import { config } from "./config";
+import Gemini from "./gemini/gemini";
 
 dotenv.config();
 let commands: SlashCommandObject;
@@ -24,9 +26,14 @@ const client = new Client({
 	],
 });
 
+let gemini: Gemini | null = null
+let messageCreateEvent: MessageCreateEvent | null = null
+
 client.once(Events.ClientReady, async (client) => {
 	console.log(`✅ Ready! Logged in as ${client.user?.tag}`);
 	commands = getSlashCommandObject(slashCommandList);
+	gemini = new Gemini(config);
+	messageCreateEvent = new MessageCreateEvent(gemini);
 	initScheduling(client);
 });
 
@@ -49,11 +56,11 @@ client.on("interactionCreate", async (interaction: BaseInteraction) => {
 });
 
 client.on("messageCreate", async (message) =>
-	MessageCreateEvent.validateSlip(message)
+	messageCreateEvent?.validateSlip(message)
 );
 
 client.on("messageReactionAdd", async (message) => {
-    MessageReactionAddEvent.manuallyValidatePayment(message)
+	MessageReactionAddEvent.manuallyValidatePayment(message)
 })
 
 client.login(process.env.TOKEN);

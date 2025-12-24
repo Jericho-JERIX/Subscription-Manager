@@ -4,7 +4,8 @@
 		"cron": "^4.3.3",
 		"discord.js": "^14.10.2",
 		"dotenv": "^16.0.3",
-		"tesseract.js": "^6.0.0"
+		"tesseract.js": "^6.0.0",
+		"@google/genai": "^1.27.0"
 	},
 	"name": "docket-bot",
 	"version": "1.0.0",
